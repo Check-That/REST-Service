@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.Models;
+package de.zeppelin.checkthat.webservice.Models.user;
 
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;

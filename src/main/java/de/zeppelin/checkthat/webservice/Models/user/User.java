@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.Models;
+package de.zeppelin.checkthat.webservice.Models.user;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -16,6 +16,7 @@ public class User {
 	public String name;
 	@Embedded
 	public Privacy privacy = new Privacy();
+	public String imagePath = "";
 
 	protected User() {
 	}
