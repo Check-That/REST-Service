@@ -1,6 +1,7 @@
 package de.zeppelin.checkthat.webservice.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,7 @@ public class RestController {
 	@Autowired
 	UserRepository repository;
 
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE} )
 	@ResponseBody
 	public Iterable<User> sayHello() {
 		return repository.findAll();
@@ -27,15 +28,14 @@ public class RestController {
 
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
-	public String newUser(@RequestBody User user) {
+	public User newUser(@RequestBody User user) {
 		if (user != null && user.name != null && !user.name.isEmpty()) {
 			user.privacy = new Privacy();
 			User newUser = repository.save(user);
-			return "{\"id\":"+newUser.id+"}";
+			return newUser;
 		} else {
-			return "error";
+			return null;
 		}
-
 	}
 	
 	@RequestMapping("init")
