@@ -17,23 +17,23 @@ public class SurveyController {
 
 	@Autowired
 	SurveyRepository repository;
-	
-	@RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE} )
+
+	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public Iterable<Survey> getAll() {
-		return repository.findAll();
+		return this.repository.findAll();
 	}
-	
+
 	@RequestMapping("{id}")
 	@ResponseBody
-	public Survey getSurveyById(@PathVariable("id")String id) {
-		return repository.findOne(Long.parseLong(id));
+	public Survey getSurveyById(@PathVariable("id") String id) {
+		return this.repository.findOne(Long.parseLong(id));
 	}
-	
+
 	@RequestMapping("init")
 	@ResponseBody
-	public String init(){
-		repository.save(new Survey("Cedric", "testimage"));
+	public String init() {
+		this.repository.save(new Survey("Cedric", "testimage"));
 		return "ok";
 	}
 }

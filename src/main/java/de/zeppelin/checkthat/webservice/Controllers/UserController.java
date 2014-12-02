@@ -20,10 +20,10 @@ public class UserController {
 	@Autowired
 	UserRepository repository;
 
-	@RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE} )
+	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public Iterable<User> getAll() {
-		return repository.findAll();
+		return this.repository.findAll();
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
@@ -31,25 +31,25 @@ public class UserController {
 	public User newUser(@RequestBody User user) {
 		if (user != null && user.name != null && !user.name.isEmpty()) {
 			user.privacy = new Privacy();
-			User newUser = repository.save(user);
+			User newUser = this.repository.save(user);
 			return newUser;
 		} else {
 			return null;
 		}
 	}
-	
+
 	@RequestMapping("{id}")
 	@ResponseBody
-	public User getUserById(@PathVariable("id")String id) {
-		return repository.findOne(Long.parseLong(id));
+	public User getUserById(@PathVariable("id") String id) {
+		return this.repository.findOne(Long.parseLong(id));
 	}
-	
+
 	@RequestMapping("init")
 	@ResponseBody
 	public String initUsers() {
-		repository.save(new User("Yannick"));
-		repository.save(new User("Cedric"));
-		
+		this.repository.save(new User("Yannick"));
+		this.repository.save(new User("Cedric"));
+
 		return "ok";
 	}
 }

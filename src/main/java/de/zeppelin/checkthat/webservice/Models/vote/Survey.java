@@ -16,9 +16,10 @@ public class Survey {
 	public String title;
 	@Enumerated(EnumType.STRING)
 	public SurveyType type;
-	
-	public Survey(){}
-	
+
+	public Survey() {
+	}
+
 	public Survey(String title, String image) {
 		this.title = title;
 		this.image = image;
