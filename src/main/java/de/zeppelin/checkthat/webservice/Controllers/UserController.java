@@ -15,14 +15,14 @@ import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
 
 @Controller
 @RequestMapping("user")
-public class RestController {
+public class UserController {
 
 	@Autowired
 	UserRepository repository;
 
 	@RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE} )
 	@ResponseBody
-	public Iterable<User> sayHello() {
+	public Iterable<User> getAll() {
 		return repository.findAll();
 	}
 
@@ -38,6 +38,12 @@ public class RestController {
 		}
 	}
 	
+	@RequestMapping("{id}")
+	@ResponseBody
+	public User getUserById(@PathVariable("id")String id) {
+		return repository.findOne(Long.parseLong(id));
+	}
+	
 	@RequestMapping("init")
 	@ResponseBody
 	public String initUsers() {
@@ -45,11 +51,5 @@ public class RestController {
 		repository.save(new User("Cedric"));
 		
 		return "ok";
-	}
-	
-	@RequestMapping("{id}")
-	@ResponseBody
-	public User getUserById(@PathVariable("id")String id) {
-		return repository.findOne(Long.parseLong(id));
 	}
 }
