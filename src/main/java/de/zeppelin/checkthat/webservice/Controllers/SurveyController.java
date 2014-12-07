@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import de.zeppelin.checkthat.webservice.Models.vote.Survey;
+import de.zeppelin.checkthat.webservice.Models.survey.Survey;
 import de.zeppelin.checkthat.webservice.persicetence.SurveyRepository;
 
 @Controller
