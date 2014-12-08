@@ -1,5 +1,6 @@
 package de.zeppelin.checkthat.webservice.Models.survey;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -8,9 +9,15 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import de.zeppelin.checkthat.webservice.Models.Views;
 import de.zeppelin.checkthat.webservice.Models.answer.Answer;
 import de.zeppelin.checkthat.webservice.Models.user.User;
 
@@ -20,20 +27,29 @@ public class Survey {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
+	@JsonView(Views.User.class)
 	@OneToOne
 	public User creator;
-	public String image;
-	public String title;
+	public String image = "";
+	public String title = "";
 	@Enumerated(EnumType.STRING)
-	public SurveyType type;
-	public List<User> participants;
-	public List<Answer> answers;
+	public SurveyType type = SurveyType.Choose;
+	@JsonView(Views.User.class)
+	@JoinTable(name = "participants", joinColumns = { @JoinColumn(name = "survey_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") })
+	public List<User> participants = new ArrayList<User>();
+	@JsonView(Views.User.class)
+	@OneToMany(mappedBy = "survey")
+	public List<Answer> answers = new ArrayList<Answer>();
 
 	public Survey() {
 	}
 
-	public Survey(String title, String image) {
+	public Survey(User creator, SurveyType type, String title, String image,
+			List<User> participants) {
+		this.creator = creator;
+		this.type = type;
 		this.title = title;
 		this.image = image;
+		this.participants = participants;
 	}
 }

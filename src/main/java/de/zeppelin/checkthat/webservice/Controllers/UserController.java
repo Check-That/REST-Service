@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import de.zeppelin.checkthat.webservice.Models.Views;
 import de.zeppelin.checkthat.webservice.Models.user.Privacy;
 import de.zeppelin.checkthat.webservice.Models.user.User;
 import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
@@ -39,6 +42,7 @@ public class UserController {
 	}
 
 	@RequestMapping("{id}")
+	@JsonView(Views.User.class)
 	@ResponseBody
 	public User getUserById(@PathVariable("id") String id) {
 		return this.repository.findOne(Long.parseLong(id));

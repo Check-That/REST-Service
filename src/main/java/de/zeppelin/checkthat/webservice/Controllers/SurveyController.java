@@ -33,7 +33,8 @@ public class SurveyController {
 	@RequestMapping("init")
 	@ResponseBody
 	public String init() {
-		this.repository.save(new Survey("Cedric", "testimage"));
+		this.repository
+				.save(new Survey(null, null, "Cedric", "testimage", null));
 		return "ok";
 	}
 }

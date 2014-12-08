@@ -64,6 +64,7 @@ public class Application {
 	private Properties jpaProperties() {
 		Properties properties = new Properties();
 		properties.put("eclipselink.weaving", "false");
+		// properties.put("eclipselink.logging.level", "ALL");
 		return properties;
 	}
 
