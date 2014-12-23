@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import de.zeppelin.checkthat.webservice.Models.Views;
+import de.zeppelin.checkthat.webservice.Models.Views.Flatsurvey;
+import de.zeppelin.checkthat.webservice.Models.survey.Survey;
 import de.zeppelin.checkthat.webservice.Models.user.Privacy;
 import de.zeppelin.checkthat.webservice.Models.user.User;
+import de.zeppelin.checkthat.webservice.persicetence.SurveyRepository;
 import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
 
 @Controller
@@ -21,12 +23,15 @@ import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
 public class UserController {
 
 	@Autowired
-	UserRepository repository;
+	UserRepository userRep;
+	
+	@Autowired
+	SurveyRepository surveyRep;
 
 	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public Iterable<User> getAll() {
-		return this.repository.findAll();
+		return this.userRep.findAll();
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
@@ -34,7 +39,7 @@ public class UserController {
 	public User newUser(@RequestBody User user) {
 		if (user != null && user.name != null && !user.name.isEmpty()) {
 			user.privacy = new Privacy();
-			User newUser = this.repository.save(user);
+			User newUser = this.userRep.save(user);
 			return newUser;
 		} else {
 			return null;
@@ -42,17 +47,30 @@ public class UserController {
 	}
 
 	@RequestMapping("{id}")
-	@JsonView(Views.User.class)
 	@ResponseBody
 	public User getUserById(@PathVariable("id") String id) {
-		return this.repository.findOne(Long.parseLong(id));
+		return this.userRep.findOne(Long.parseLong(id));
+	}
+	
+	@RequestMapping("{id}/created")
+	@ResponseBody
+	@JsonView(Flatsurvey.class)
+	public Iterable<Survey> getCreatedSurveysByUser(@PathVariable("id") Long id) {
+		return this.surveyRep.findByCreator(userRep.findOne(id));
+	}
+	
+	@RequestMapping("{id}/participating")
+	@ResponseBody
+	@JsonView(Flatsurvey.class)
+	public Iterable<Survey> getParticipatingSurveysByUser(@PathVariable("id") Long id) {
+		return this.surveyRep.findByParticipants(userRep.findOne(id));
 	}
 
 	@RequestMapping("init")
 	@ResponseBody
 	public String initUsers() {
-		this.repository.save(new User("Yannick"));
-		this.repository.save(new User("Cedric"));
+		this.userRep.save(new User("Yannick"));
+		this.userRep.save(new User("Cedric"));
 
 		return "ok";
 	}

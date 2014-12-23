@@ -28,13 +28,13 @@ public class InitController {
 	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public String initGeneral() {
-		// User cedric = new User("Cedric");
-		// User yannick = new User("Yannick");
-		// User horst = new User("Horst");
+//		 User cedric = new User("Cedric");
+//		 User yannick = new User("Yannick");
+//		 User horst = new User("Horst");
 
-		User cedric = this.userRep.findOne(new Long("12"));
-		User yannick = this.userRep.findOne(new Long("13"));
-		User horst = this.userRep.findOne(new Long("14"));
+		User cedric = this.userRep.findOne(new Long("1"));
+		User yannick = this.userRep.findOne(new Long("2"));
+		User horst = this.userRep.findOne(new Long("3"));
 		System.out.println(cedric);
 
 		List<User> participants = new ArrayList<User>();
@@ -50,9 +50,9 @@ public class InitController {
 		// watch.participants.add(cedric);
 		// watch.participants.add(horst);
 
-		// this.userRep.save(cedric);
-		// this.userRep.save(yannick);
-		// this.userRep.save(horst);
+//		 this.userRep.save(cedric);
+//		 this.userRep.save(yannick);
+//		 this.userRep.save(horst);
 		// this.surveyRep.save(watch);
 		this.surveyRep.save(shoes);
 

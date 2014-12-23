@@ -29,12 +29,4 @@ public class SurveyController {
 	public Survey getSurveyById(@PathVariable("id") String id) {
 		return this.repository.findOne(Long.parseLong(id));
 	}
-
-	@RequestMapping("init")
-	@ResponseBody
-	public String init() {
-		this.repository
-				.save(new Survey(null, null, "Cedric", "testimage", null));
-		return "ok";
-	}
 }
