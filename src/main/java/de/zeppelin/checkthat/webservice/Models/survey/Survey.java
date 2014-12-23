@@ -17,7 +17,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import de.zeppelin.checkthat.webservice.Models.Views;
+import de.zeppelin.checkthat.webservice.Models.Views.Flatsurvey;
 import de.zeppelin.checkthat.webservice.Models.answer.Answer;
 import de.zeppelin.checkthat.webservice.Models.user.User;
 
@@ -27,17 +27,15 @@ public class Survey {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
-	@JsonView(Views.User.class)
 	@OneToOne
+	@JsonView(Flatsurvey.class)
 	public User creator;
 	public String image = "";
 	public String title = "";
 	@Enumerated(EnumType.STRING)
 	public SurveyType type = SurveyType.Choose;
-	@JsonView(Views.User.class)
 	@JoinTable(name = "participants", joinColumns = { @JoinColumn(name = "survey_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") })
 	public List<User> participants = new ArrayList<User>();
-	@JsonView(Views.User.class)
 	@OneToMany(mappedBy = "survey")
 	public List<Answer> answers = new ArrayList<Answer>();
 
