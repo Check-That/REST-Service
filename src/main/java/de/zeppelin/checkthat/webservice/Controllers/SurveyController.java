@@ -1,13 +1,17 @@
 package de.zeppelin.checkthat.webservice.Controllers;
 
+import javax.websocket.server.PathParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import de.zeppelin.checkthat.webservice.Models.answer.Answer;
 import de.zeppelin.checkthat.webservice.Models.survey.Survey;
 import de.zeppelin.checkthat.webservice.persicetence.SurveyRepository;
 
@@ -23,10 +27,14 @@ public class SurveyController {
 	public Iterable<Survey> getAll() {
 		return this.repository.findAll();
 	}
-
+	/*Später aus Sicherheitsgründen nicht mehr verwenden*/
 	@RequestMapping("{id}")
 	@ResponseBody
 	public Survey getSurveyById(@PathVariable("id") String id) {
 		return this.repository.findOne(Long.parseLong(id));
+	}
+	
+	public String postAnswerforSurvey(@PathParam("surveyID") Long surveyID, @RequestParam("answer") Answer answer) {
+		return "ok";
 	}
 }

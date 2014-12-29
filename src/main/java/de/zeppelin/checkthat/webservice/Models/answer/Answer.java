@@ -1,5 +1,7 @@
 package de.zeppelin.checkthat.webservice.Models.answer;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,7 +14,7 @@ import de.zeppelin.checkthat.webservice.Models.user.User;
 
 @Entity(name = "answer")
 @Table(name = "answer")
-public class Answer { // N.I.N.J.A
+public class Answer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +22,8 @@ public class Answer { // N.I.N.J.A
 	public User owner;
 	@ManyToOne
 	public Survey survey;
-	public String answer;
+	public List<String> answerValues;
 
 	public Answer() {
-	};// N.I.N.J.A
+	}
 }

@@ -28,21 +28,26 @@ public class InitController {
 	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public String initGeneral() {
-//		 User cedric = new User("Cedric");
-//		 User yannick = new User("Yannick");
-//		 User horst = new User("Horst");
+		User cedric = new User("Cedric");
+		User yannick = new User("Yannick");
+		User horst = new User("Horst");
+		this.userRep.save(cedric);
+		this.userRep.save(yannick);
+		this.userRep.save(horst);
 
-		User cedric = this.userRep.findOne(new Long("1"));
-		User yannick = this.userRep.findOne(new Long("2"));
-		User horst = this.userRep.findOne(new Long("3"));
-		System.out.println(cedric);
-
+		cedric = this.userRep.findOne(new Long("1"));
+		yannick = this.userRep.findOne(new Long("2"));
+		horst = this.userRep.findOne(new Long("3"));
+		
 		List<User> participants = new ArrayList<User>();
 		participants.add(horst);
 		participants.add(yannick);
 
-		Survey shoes = new Survey(cedric, SurveyType.Choose, "shoes",
-				"testimage", participants);
+		List<String> categories = new ArrayList<String>();
+		categories.add("face");
+		categories.add("beauty");
+		
+		Survey shoes = new Survey(cedric,"testimage","shoes",categories,SurveyType.TopFlop,participants);
 
 		// Survey watch = new Survey("Neue Uhr", "UhrImage");
 		// watch.type = SurveyType.TopFlop;
@@ -50,9 +55,7 @@ public class InitController {
 		// watch.participants.add(cedric);
 		// watch.participants.add(horst);
 
-//		 this.userRep.save(cedric);
-//		 this.userRep.save(yannick);
-//		 this.userRep.save(horst);
+
 		// this.surveyRep.save(watch);
 		this.surveyRep.save(shoes);
 

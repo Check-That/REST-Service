@@ -24,6 +24,17 @@ import de.zeppelin.checkthat.webservice.Models.user.User;
 @Entity(name = "survey")
 @Table(name = "survey")
 public class Survey {
+	public Survey(User creator, String image, String title,
+			List<String> categories, SurveyType type, List<User> participants) {
+		super();
+		this.creator = creator;
+		this.image = image;
+		this.title = title;
+		this.categories = categories;
+		this.type = type;
+		this.participants = participants;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
@@ -32,22 +43,15 @@ public class Survey {
 	public User creator;
 	public String image = "";
 	public String title = "";
+	public List<String> categories = new ArrayList<String>();
 	@Enumerated(EnumType.STRING)
 	public SurveyType type = SurveyType.Choose;
 	@JoinTable(name = "participants", joinColumns = { @JoinColumn(name = "survey_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") })
 	public List<User> participants = new ArrayList<User>();
 	@OneToMany(mappedBy = "survey")
 	public List<Answer> answers = new ArrayList<Answer>();
-
+	
 	public Survey() {
 	}
 
-	public Survey(User creator, SurveyType type, String title, String image,
-			List<User> participants) {
-		this.creator = creator;
-		this.type = type;
-		this.title = title;
-		this.image = image;
-		this.participants = participants;
-	}
 }
