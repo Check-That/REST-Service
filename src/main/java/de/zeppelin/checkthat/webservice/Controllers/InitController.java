@@ -48,15 +48,13 @@ public class InitController {
 		categories.add("beauty");
 		
 		Survey shoes = new Survey(cedric,"testimage","shoes",categories,SurveyType.TopFlop,participants);
-
-		// Survey watch = new Survey("Neue Uhr", "UhrImage");
-		// watch.type = SurveyType.TopFlop;
-		// watch.creator = yannick;
-		// watch.participants.add(cedric);
-		// watch.participants.add(horst);
-
-
-		// this.surveyRep.save(watch);
+		
+		Survey watch = new Survey(cedric, "testimage", "watch", categories, SurveyType.Choose, participants);
+		
+		Survey watch2 = new Survey(cedric, "testimage", "watches", categories, SurveyType.Stars, participants);
+		
+		this.surveyRep.save(watch2);
+		this.surveyRep.save(watch);
 		this.surveyRep.save(shoes);
 
 		return "ok";

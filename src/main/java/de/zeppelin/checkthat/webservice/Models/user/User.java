@@ -7,7 +7,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
 
 @Entity(name = "user")
 @Table(name = "user")
@@ -22,10 +27,20 @@ public class User {
 	@Column(name = "image_path")
 	public String imagePath = "";
 
+	@Transient
+	@Autowired private UserRepository userRep;
 	protected User() {
 	}
 
 	public User(String name) {
 		this.name = name;
+	}
+	
+	public User(Long id) {
+		User tempUser = userRep.findOne(id);
+		this.id = tempUser.id;
+		this.name = tempUser.name;
+		this.privacy = tempUser.privacy;
+		this.imagePath = tempUser.imagePath;
 	}
 }

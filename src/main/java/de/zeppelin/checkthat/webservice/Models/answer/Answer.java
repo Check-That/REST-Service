@@ -22,7 +22,7 @@ public class Answer {
 	public User owner;
 	@ManyToOne
 	public Survey survey;
-	public List<String> answerValues;
+	public List<Integer> answerValues;
 
 	public Answer() {
 	}

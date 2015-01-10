@@ -27,6 +27,13 @@ public class SurveyController {
 	public Iterable<Survey> getAll() {
 		return this.repository.findAll();
 	}
+	
+	@RequestMapping(method = RequestMethod.POST)
+	@ResponseBody
+	public String createSurvey() {
+		
+		return "ok";
+	}
 	/*Später aus Sicherheitsgründen nicht mehr verwenden*/
 	@RequestMapping("{id}")
 	@ResponseBody
@@ -34,7 +41,9 @@ public class SurveyController {
 		return this.repository.findOne(Long.parseLong(id));
 	}
 	
-	public String postAnswerforSurvey(@PathParam("surveyID") Long surveyID, @RequestParam("answer") Answer answer) {
-		return "ok";
+	@RequestMapping(method = RequestMethod.POST, value="{surveyID}")
+	@ResponseBody
+	public Answer postAnswerforSurvey(@PathParam("surveyID") Long surveyID, @RequestParam("answer") Answer answer) {
+		return answer;
 	}
 }
