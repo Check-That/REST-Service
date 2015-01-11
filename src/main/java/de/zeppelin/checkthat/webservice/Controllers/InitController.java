@@ -38,7 +38,7 @@ public class InitController {
 		cedric = this.userRep.findOne(new Long("1"));
 		yannick = this.userRep.findOne(new Long("2"));
 		horst = this.userRep.findOne(new Long("3"));
-		
+
 		List<User> participants = new ArrayList<User>();
 		participants.add(horst);
 		participants.add(yannick);
@@ -46,13 +46,16 @@ public class InitController {
 		List<String> categories = new ArrayList<String>();
 		categories.add("face");
 		categories.add("beauty");
-		
-		Survey shoes = new Survey(cedric,"testimage","shoes",categories,SurveyType.TopFlop,participants);
-		
-		Survey watch = new Survey(cedric, "testimage", "watch", categories, SurveyType.Choose, participants);
-		
-		Survey watch2 = new Survey(cedric, "testimage", "watches", categories, SurveyType.Stars, participants);
-		
+
+		Survey shoes = new Survey(cedric, "testimage", "shoes", categories,
+				SurveyType.TopFlop, participants);
+
+		Survey watch = new Survey(cedric, "testimage", "watch", categories,
+				SurveyType.Choose, participants);
+
+		Survey watch2 = new Survey(cedric, "testimage", "watches", categories,
+				SurveyType.Stars, participants);
+
 		this.surveyRep.save(watch2);
 		this.surveyRep.save(watch);
 		this.surveyRep.save(shoes);

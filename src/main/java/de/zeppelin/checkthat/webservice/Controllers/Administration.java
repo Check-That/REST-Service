@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("admin")
 public class Administration {
-	
+
 	@PersistenceContext
 	EntityManager em;
-	
+
 	@RequestMapping("refresh")
 	@ResponseBody
 	public String refresh() {
-		em.getEntityManagerFactory().getCache().evictAll();
+		this.em.getEntityManagerFactory().getCache().evictAll();
 		return "ok";
 	}
 }

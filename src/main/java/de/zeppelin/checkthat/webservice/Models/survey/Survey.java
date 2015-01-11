@@ -50,7 +50,7 @@ public class Survey {
 	public List<User> participants = new ArrayList<User>();
 	@OneToMany(mappedBy = "survey")
 	public List<Answer> answers = new ArrayList<Answer>();
-	
+
 	public Survey() {
 	}
 

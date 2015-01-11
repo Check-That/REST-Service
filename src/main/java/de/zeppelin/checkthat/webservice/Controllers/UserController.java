@@ -24,7 +24,7 @@ public class UserController {
 
 	@Autowired
 	UserRepository userRep;
-	
+
 	@Autowired
 	SurveyRepository surveyRep;
 
@@ -51,27 +51,19 @@ public class UserController {
 	public User getUserById(@PathVariable("id") String id) {
 		return this.userRep.findOne(Long.parseLong(id));
 	}
-	
+
 	@RequestMapping("{id}/created")
 	@ResponseBody
 	@JsonView(Flatsurvey.class)
 	public Iterable<Survey> getCreatedSurveysByUser(@PathVariable("id") Long id) {
-		return this.surveyRep.findByCreator(userRep.findOne(id));
+		return this.surveyRep.findByCreator(this.userRep.findOne(id));
 	}
-	
+
 	@RequestMapping("{id}/participating")
 	@ResponseBody
 	@JsonView(Flatsurvey.class)
-	public Iterable<Survey> getParticipatingSurveysByUser(@PathVariable("id") Long id) {
-		return this.surveyRep.findByParticipants(userRep.findOne(id));
-	}
-
-	@RequestMapping("init")
-	@ResponseBody
-	public String initUsers() {
-		this.userRep.save(new User("Yannick"));
-		this.userRep.save(new User("Cedric"));
-
-		return "ok";
+	public Iterable<Survey> getParticipatingSurveysByUser(
+			@PathVariable("id") Long id) {
+		return this.surveyRep.findByParticipants(this.userRep.findOne(id));
 	}
 }

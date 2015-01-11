@@ -1,5 +1,6 @@
 package de.zeppelin.checkthat.webservice.Models;
 
 public class Views {
-	public static class Flatsurvey{}
+	public static class Flatsurvey {
+	}
 }

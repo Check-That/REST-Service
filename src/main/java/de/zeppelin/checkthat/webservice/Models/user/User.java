@@ -28,19 +28,13 @@ public class User {
 	public String imagePath = "";
 
 	@Transient
-	@Autowired private UserRepository userRep;
+	@Autowired
+	private UserRepository userRep;
+
 	protected User() {
 	}
 
 	public User(String name) {
 		this.name = name;
-	}
-	
-	public User(Long id) {
-		User tempUser = userRep.findOne(id);
-		this.id = tempUser.id;
-		this.name = tempUser.name;
-		this.privacy = tempUser.privacy;
-		this.imagePath = tempUser.imagePath;
 	}
 }
