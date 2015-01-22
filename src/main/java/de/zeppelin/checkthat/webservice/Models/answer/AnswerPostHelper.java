@@ -14,8 +14,8 @@ import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
 @Configurable(autowire = Autowire.BY_TYPE)
 @Service
 public class AnswerPostHelper {
-	public Long ownerId;
 	public List<Integer> answerValues;
+	public Long ownerId;
 
 	public AnswerPostHelper() {
 	}

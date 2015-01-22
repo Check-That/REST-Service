@@ -8,14 +8,14 @@ import javax.persistence.Enumerated;
 @Embeddable
 public class Privacy {
 	@Enumerated(EnumType.STRING)
+	@Column(name = "privacy_image")
+	public Visibility image;
+	@Enumerated(EnumType.STRING)
 	@Column(name = "privacy_status")
 	public Visibility status;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "privacy_votes")
 	public Visibility votes;
-	@Enumerated(EnumType.STRING)
-	@Column(name = "privacy_image")
-	public Visibility image;
 
 	public Privacy() {
 		this.status = Visibility.all;

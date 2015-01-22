@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
@@ -57,7 +58,7 @@ public class Application implements ApplicationContextAware {
 		factory.setPackagesToScan("de.zeppelin.checkthat.webservice.Models");
 		factory.setDataSource(dataSource());
 		factory.setJpaProperties(jpaProperties());
-		// factory.setLoadTimeWeaver(new InstrumentationLoadTimeWeave);
+		factory.setLoadTimeWeaver(new InstrumentationLoadTimeWeaver());
 		return factory;
 	}
 
@@ -88,38 +89,4 @@ public class Application implements ApplicationContextAware {
 		// properties.put("eclipselink.logging.level", "ALL");
 		return properties;
 	}
-
-	// @Bean
-	// public DataSource dataSource() {
-	// DriverManagerDataSource dataSource = new DriverManagerDataSource();
-	//
-	// dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-	// dataSource.setUrl("jdbc:mysql://localhost:3306/checkthat");
-	// dataSource.setUsername("root");
-	// dataSource.setPassword("rootpasswort");
-	//
-	// return dataSource;
-	// }
-	//
-	// @Autowired
-	// @Bean(name = "sessionFactory")
-	// public SessionFactory getSessionFactory(DataSource dataSource) {
-	//
-	// LocalSessionFactoryBuilder sessionBuilder = new
-	// LocalSessionFactoryBuilder(dataSource);
-	//
-	// sessionBuilder.addAnnotatedClasses(User.class);
-	// sessionBuilder.addProperties(getHibernateProperties());
-	//
-	// return sessionBuilder.buildSessionFactory();
-	// }
-	//
-	// private Properties getHibernateProperties() {
-	// Properties properties = new Properties();
-	// properties.put("hibernate.show_sql", "true");
-	// properties.put("hibernate.dialect",
-	// "org.hibernate.dialect.MySQLDialect");
-	// properties.put("hibernate.format_sql", "true");
-	// return properties;
-	// }
 }

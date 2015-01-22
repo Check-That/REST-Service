@@ -2,19 +2,17 @@ package de.zeppelin.checkthat.webservice.Models.survey;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import de.zeppelin.checkthat.webservice.Application;
 import de.zeppelin.checkthat.webservice.persicetence.SurveyRepository;
 import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
 
 public class SurveyPostHelper {
-	public Long creatorID;
-	public String title;
 	public List<String> categories;
-	public SurveyType type;
-	public List<Long> participants;
+	public Long creatorID;
 	public String image;
+	public List<Long> participants;
+	public String title;
+	public SurveyType type;
 
 	public SurveyPostHelper() {
 	}
@@ -26,13 +24,14 @@ public class SurveyPostHelper {
 				SurveyRepository.class);
 
 		Survey survey = new Survey();
-		survey.creator = userRep.findOne(this.creatorID);
-		survey.title = this.title;
 		survey.categories = this.categories;
-		survey.type = this.type;
+		survey.creator = userRep.findOne(this.creatorID);
 		survey.image = this.image;
-		survey.participants = Lists.newArrayList(userRep
-				.findAll(this.participants));
+		for (Long participant : this.participants) {
+			survey.participants.add(userRep.findOne(participant));
+		}
+		survey.title = this.title;
+		survey.type = this.type;
 
 		surveyRep.save(survey);
 

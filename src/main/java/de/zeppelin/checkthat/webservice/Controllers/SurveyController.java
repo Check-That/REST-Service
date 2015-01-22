@@ -52,6 +52,17 @@ public class SurveyController {
 		return this.surveyRep.findOne(Long.parseLong(id));
 	}
 
+	@RequestMapping(value = "{id}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public String removeSurveyById(@PathVariable("id") String id) {
+		try {
+			this.surveyRep.delete(Long.parseLong(id));
+		} catch (Exception e) {
+			return "error";
+		}
+		return "ok";
+	}
+
 	@RequestMapping(value = "{surveyID}", method = RequestMethod.POST)
 	@ResponseBody
 	public String postAnswerforSurvey(@PathVariable("surveyID") Long surveyID,
