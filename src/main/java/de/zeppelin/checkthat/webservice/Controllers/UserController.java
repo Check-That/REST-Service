@@ -30,11 +30,11 @@ public class UserController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public User newUser(@RequestBody User user) {
+	public Long newUser(@RequestBody User user) {
 		if (user != null && user.name != null && !user.name.isEmpty()) {
 			user.privacy = new Privacy();
 			User newUser = this.userRep.save(user);
-			return newUser;
+			return newUser.authId;
 		} else {
 			return null;
 		}

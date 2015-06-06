@@ -21,5 +21,4 @@ public class Circle {
 	public String name;
 	@ManyToOne
 	public User owner;
-
 }

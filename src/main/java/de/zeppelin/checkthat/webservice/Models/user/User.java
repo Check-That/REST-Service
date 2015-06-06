@@ -1,6 +1,7 @@
 package de.zeppelin.checkthat.webservice.Models.user;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -27,6 +28,7 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
+	public Long authId = UUID.randomUUID().getMostSignificantBits();
 	@OneToMany(mappedBy = "owner")
 	@JsonIgnore
 	public List<Circle> circles;
@@ -39,7 +41,7 @@ public class User {
 	public String name;
 	@Embedded
 	public Privacy privacy = new Privacy();
-
+	public String pushToken = "";
 	@Transient
 	@JsonIgnore
 	@Autowired
