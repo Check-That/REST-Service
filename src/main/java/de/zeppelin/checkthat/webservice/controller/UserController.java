@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.Controllers;
+package de.zeppelin.checkthat.webservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.zeppelin.checkthat.webservice.Models.survey.Survey;
-import de.zeppelin.checkthat.webservice.Models.user.Privacy;
-import de.zeppelin.checkthat.webservice.Models.user.User;
-import de.zeppelin.checkthat.webservice.persicetence.SurveyRepository;
-import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import de.zeppelin.checkthat.webservice.exceptions.BadRequestException;
+import de.zeppelin.checkthat.webservice.exceptions.ForbiddenException;
+import de.zeppelin.checkthat.webservice.models.JSONViews;
+import de.zeppelin.checkthat.webservice.models.survey.Survey;
+import de.zeppelin.checkthat.webservice.models.user.User;
+import de.zeppelin.checkthat.webservice.persisetence.SurveyRepository;
+import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
 
 @RestController
 @RequestMapping("user")
@@ -30,17 +34,24 @@ public class UserController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public Long newUser(@RequestBody User user) {
-		if (user != null && user.name != null && !user.name.isEmpty()) {
-			user.privacy = new Privacy();
-			User newUser = this.userRep.save(user);
-			return newUser.authId;
-		} else {
-			return null;
+	@JsonView(JSONViews.sensitive.class)
+	public User newUser(@RequestBody User user) {
+		if (user != null) {
+			if (user.name != null && !user.name.isEmpty()) {
+				User newUser = this.userRep.save(user);
+				return newUser;
+			} else if (user.authId != null && user.authId != 0){
+				User regUser = this.userRep.findOneByAuthId(user.authId);
+				if (regUser != null) return regUser;
+				throw new ForbiddenException();
+			} 
+			throw new BadRequestException();
 		}
+		throw new BadRequestException();
 	}
 
 	@RequestMapping("{id}")
+	@JsonView(JSONViews.sensitive.class)
 	public User getUserById(@PathVariable("id") String id) {
 		return this.userRep.findOne(Long.parseLong(id));
 	}

@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.Controllers;
+package de.zeppelin.checkthat.webservice.controller;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

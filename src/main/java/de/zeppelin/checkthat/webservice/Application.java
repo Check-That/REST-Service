@@ -2,11 +2,13 @@ package de.zeppelin.checkthat.webservice;
 
 import java.util.Properties;
 
+import javax.servlet.MultipartConfigElement;
 import javax.sql.DataSource;
 
 import org.springframework.beans.BeansException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +21,9 @@ import org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
@@ -29,6 +33,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 @EnableAutoConfiguration
 @EnableSpringConfigured
 @EnableAspectJAutoProxy
+@EnableAsync
 public class Application implements ApplicationContextAware {
 
 	public static void main(String[] args) {
@@ -46,6 +51,22 @@ public class Application implements ApplicationContextAware {
 	public static ApplicationContext getContext() {
 		return context;
 	}
+	
+	@Bean
+	MultipartConfigElement multipartConfigElement() {
+		MultipartConfigFactory factory = new MultipartConfigFactory();
+		factory.setMaxFileSize("100MB");
+		factory.setMaxRequestSize("100MB");
+		factory.setFileSizeThreshold("100MB");
+		return factory.createMultipartConfig();
+	}
+	
+//	@Bean
+//	public CommonsMultipartResolver multipartResolver() {
+//		CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+//		
+//		return resolver;
+//	}
 
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
@@ -55,7 +76,8 @@ public class Application implements ApplicationContextAware {
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
-		factory.setPackagesToScan("de.zeppelin.checkthat.webservice.Models");
+		
+		factory.setPackagesToScan("de.zeppelin.checkthat.webservice.models");
 		factory.setDataSource(dataSource());
 		factory.setJpaProperties(jpaProperties());
 		factory.setLoadTimeWeaver(new InstrumentationLoadTimeWeaver());
@@ -77,7 +99,7 @@ public class Application implements ApplicationContextAware {
 	@Bean
 	public DataSource dataSource() {
 		MysqlDataSource dataSource = new MysqlDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/checkthat");
+		dataSource.setUrl("jdbc:mysql://localhost:3306/checkthat?useUnicode=true&characterEncoding=UTF-8");
 		dataSource.setUser("root");
 		dataSource.setPassword("rootpasswort");
 		return dataSource;

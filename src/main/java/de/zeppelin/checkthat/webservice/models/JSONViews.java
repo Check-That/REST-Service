@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.Models;
+package de.zeppelin.checkthat.webservice.models;
 
 public class JSONViews {
 	public interface nonSensitive {

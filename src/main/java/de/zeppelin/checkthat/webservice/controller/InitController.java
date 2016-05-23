@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.Controllers;
+package de.zeppelin.checkthat.webservice.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import de.zeppelin.checkthat.webservice.Models.survey.Survey;
-import de.zeppelin.checkthat.webservice.Models.survey.SurveyType;
-import de.zeppelin.checkthat.webservice.Models.user.User;
-import de.zeppelin.checkthat.webservice.persicetence.SurveyRepository;
-import de.zeppelin.checkthat.webservice.persicetence.UserRepository;
+import de.zeppelin.checkthat.webservice.models.image.Image;
+import de.zeppelin.checkthat.webservice.models.survey.Survey;
+import de.zeppelin.checkthat.webservice.models.survey.SurveyType;
+import de.zeppelin.checkthat.webservice.models.user.User;
+import de.zeppelin.checkthat.webservice.persisetence.SurveyRepository;
+import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
 
 @Controller
 @RequestMapping("init")
@@ -25,6 +26,7 @@ public class InitController {
 	@Autowired
 	SurveyRepository surveyRep;
 
+	
 	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public String initGeneral() {
@@ -47,14 +49,19 @@ public class InitController {
 		categories.add("face");
 		categories.add("beauty");
 
-		Survey shoes = new Survey(cedric, "testimage", "shoes", categories,
+		ArrayList<Image> imageList = new ArrayList<Image>();
+		imageList.add(new Image());
+		imageList.add(new Image());
+		imageList.add(new Image());
+		
+		Survey shoes = new Survey(cedric, imageList, "shoes", categories,
 				SurveyType.TopFlop, participants);
 
-		Survey watch = new Survey(cedric, "testimage", "watch", categories,
+		Survey watch = new Survey(cedric, imageList, "watch", categories,
 				SurveyType.Choose, participants);
 
-		Survey watch2 = new Survey(cedric, "testimage", "watches", categories,
-				SurveyType.Stars, participants);
+		Survey watch2 = new Survey(cedric, imageList, "watches", categories,
+				SurveyType.Star, participants);
 
 		this.surveyRep.save(watch2);
 		this.surveyRep.save(watch);
