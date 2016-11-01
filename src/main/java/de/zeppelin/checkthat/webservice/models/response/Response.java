@@ -26,7 +26,7 @@ public class Response {
 	public Long id;
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date date = new Date();
-	public Boolean notification;
+	public Boolean favorite;
 	public List<Integer> responseValues;
 	public User responder;
 	@ManyToOne

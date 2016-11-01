@@ -10,7 +10,6 @@ import de.zeppelin.checkthat.webservice.Application;
 import de.zeppelin.checkthat.webservice.exceptions.BadRequestException;
 import de.zeppelin.checkthat.webservice.exceptions.ConflictException;
 import de.zeppelin.checkthat.webservice.exceptions.ForbiddenException;
-import de.zeppelin.checkthat.webservice.models.survey.Survey;
 import de.zeppelin.checkthat.webservice.persisetence.ResponseRepository;
 import de.zeppelin.checkthat.webservice.persisetence.SurveyRepository;
 import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
@@ -19,14 +18,11 @@ import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
 @Service
 public class ResponsePostHelper {
 	public List<Integer> responseValues;
-	
-	private UserRepository userRep = Application.getContext().getBean(
-			UserRepository.class);
-	private SurveyRepository surveyRep = Application.getContext().getBean(
-			SurveyRepository.class);
-	private ResponseRepository answerRep = Application.getContext().getBean(
-			ResponseRepository.class);
-	
+
+	private UserRepository userRep = Application.getContext().getBean(UserRepository.class);
+	private SurveyRepository surveyRep = Application.getContext().getBean(SurveyRepository.class);
+	private ResponseRepository answerRep = Application.getContext().getBean(ResponseRepository.class);
+
 	private Response response = new Response();
 
 	public ResponsePostHelper() {
@@ -34,31 +30,37 @@ public class ResponsePostHelper {
 
 	public Response generateAnswer(Long surveyId, Long authId) {
 		try {
-			response.survey = this.surveyRep.findOne(surveyId);
-			response.responseValues = this.responseValues;
-			response.responder = this.userRep.findOneByAuthId(authId);
+			this.response.survey = this.surveyRep.findOne(surveyId);
+			this.response.responseValues = this.responseValues; 
+			this.response.responder = this.userRep.findOneByAuthId(authId);
 		} catch (Exception e) {
 			throw new ConflictException();
 		}
-		
-		if (!this.checkValid()) throw new BadRequestException();
-		
+
+		if (!checkValid()) {
+			throw new BadRequestException();
+		}
+
 		try {
-			response.survey.responses.add(response);
-			surveyRep.save(response.survey);
-			
-			response = answerRep.findOneBySurveyIdAndResponderAuthId(surveyId, authId);
-			} catch (Exception e) {
+			this.response.survey.responses.add(this.response);
+			this.surveyRep.save(this.response.survey);
+
+			this.response = this.answerRep.findOneBySurveyIdAndResponderAuthId(surveyId, authId);
+		} catch (Exception e) {
 			throw new ConflictException();
 		}
-		
-		return response;
+
+		return this.response;
 	}
 
 	private boolean checkValid() {
-		if (this.responseValues == null || this.responseValues.size() != this.response.survey.rateCategories.size()) return false;
-		if (!this.response.survey.participants.contains(this.response.responder)) throw new ForbiddenException();
-		
+		if (this.responseValues == null || this.responseValues.size() != this.response.survey.rateCategories.size()) {
+			return false;
+		}
+		if (!this.response.survey.participants.contains(this.response.responder)) {
+			throw new ForbiddenException();
+		}
+
 		return true;
 	}
 }

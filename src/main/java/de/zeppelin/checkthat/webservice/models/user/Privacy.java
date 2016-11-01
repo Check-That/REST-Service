@@ -22,16 +22,16 @@ public class Privacy {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "privacy_votes")
 	@JsonView(JSONViews.nonSensitive.class)
-	public Visibility votes;
+	public Visibility responses;
 
 	public Privacy() {
 		this.status = Visibility.All;
-		this.votes = Visibility.All;
+		this.responses = Visibility.All;
 		this.image = Visibility.All;
 	}
 
 	@Override
 	public String toString() {
-		return "Privacy [image=" + image + ", status=" + status + ", votes=" + votes + "]";
+		return "Privacy [image=" + this.image + ", status=" + this.status + ", responses=" + this.responses + "]";
 	}
 }

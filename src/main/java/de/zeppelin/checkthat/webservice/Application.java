@@ -23,7 +23,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
@@ -43,15 +42,14 @@ public class Application implements ApplicationContextAware {
 	private static ApplicationContext context;
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		context = applicationContext;
 	}
 
 	public static ApplicationContext getContext() {
 		return context;
 	}
-	
+
 	@Bean
 	MultipartConfigElement multipartConfigElement() {
 		MultipartConfigFactory factory = new MultipartConfigFactory();
@@ -60,13 +58,13 @@ public class Application implements ApplicationContextAware {
 		factory.setFileSizeThreshold("100MB");
 		return factory.createMultipartConfig();
 	}
-	
-//	@Bean
-//	public CommonsMultipartResolver multipartResolver() {
-//		CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-//		
-//		return resolver;
-//	}
+
+	// @Bean
+	// public CommonsMultipartResolver multipartResolver() {
+	// CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+	//
+	// return resolver;
+	// }
 
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
@@ -76,7 +74,7 @@ public class Application implements ApplicationContextAware {
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
-		
+
 		factory.setPackagesToScan("de.zeppelin.checkthat.webservice.models");
 		factory.setDataSource(dataSource());
 		factory.setJpaProperties(jpaProperties());

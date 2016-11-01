@@ -19,7 +19,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import de.zeppelin.checkthat.webservice.Application;
 import de.zeppelin.checkthat.webservice.exceptions.InternalServerErrorException;
@@ -28,7 +27,7 @@ import de.zeppelin.checkthat.webservice.persisetence.ImageRepository;
 
 @Entity(name = "image")
 @Table(name = "image")
-//@JsonIgnoreProperties(value = {"survey", "uploaded"})
+// @JsonIgnoreProperties(value = {"survey", "uploaded"})
 public class Image {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,28 +36,38 @@ public class Image {
 
 	@JsonIgnore
 	public boolean uploaded = false;
-	
+
 	@ManyToOne(optional = false)
 	@JsonIgnore
 	public Survey survey;
-	
-	public Image() {}
+
+	public Image() {
+	}
 
 	@JsonIgnore
-	public String getImagePath() {return getImagePath("");}
-	
+	public String getImagePath() {
+		return getImagePath("");
+	}
+
 	public String getImagePath(String postfix) {
-		if (this.id == null || this.id == 0) return null;
+		if (this.id == null || this.id == 0) {
+			return null;
+		}
 		String rootDir = "C:\\checkthat\\pictures";
 
 		// Fill up id with zeros to get 12 digits
-		String fileName = String.format("%012d", id);
+		String fileName = String.format("%012d", this.id);
 		
-		Path path = Paths.get(rootDir, fileName.substring(0,3), fileName.substring(3,6), fileName.substring(6,9), fileName + postfix + ".jpg");
-		
+		if (postfix != null  || postfix != "") {
+			postfix = "@" + postfix;
+		}
+
+		Path path = Paths.get(rootDir, fileName.substring(0, 3), fileName.substring(3, 6), fileName.substring(6, 9),
+				fileName + postfix + ".jpg");
+
 		return path.toString();
 	}
-	
+
 	@Async
 	public void saveImage(MultipartFile mpFile) {
 		File targetFile = new File(getImagePath());
@@ -67,26 +76,24 @@ public class Image {
 			targetFile.getParentFile().mkdirs();
 			targetFile.createNewFile();
 			mpFile.transferTo(targetFile);
-			
+
 			// Generate thumbnail versions
 			BufferedImage bImage = ImageIO.read(mpFile.getInputStream());
-			scaleImage(bImage, 600, 800, new File(getImagePath("@small")));
-			scaleImage(bImage, 300, 400, new File(getImagePath("@2")));
-			
-			
-			ImageRepository imageRep = Application.getContext().getBean(
-					ImageRepository.class);
-			
+			scaleImage(bImage, 600, 800, new File(getImagePath("small-")));
+			scaleImage(bImage, 360, 480, new File(getImagePath("tn")));
+
+			ImageRepository imageRep = Application.getContext().getBean(ImageRepository.class);
+
 			this.uploaded = true;
-			
+
 			imageRep.save(this);
-			
+
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
 			throw new InternalServerErrorException();
 		}
 	}
-	
+
 	public BufferedImage getImage(String postfix) {
 		try {
 			return ImageIO.read(new File(this.getImagePath(postfix)));
@@ -95,13 +102,13 @@ public class Image {
 			throw new InternalServerErrorException();
 		}
 	}
-	
+
 	public void scaleImage(BufferedImage image, int width, int height, File targetFile) throws IOException {
 		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = resizedImage.createGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
 		g.dispose();
-		
+
 		ImageIO.write(resizedImage, "jpg", targetFile);
 	}
 }
