@@ -29,30 +29,39 @@ import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
 
 @Entity(name = "user")
 @Table(name = "user")
-@JsonIgnoreProperties({"email","phone","authId","circles","friends","credits"})
+@JsonIgnoreProperties({"authId","credits","language","email","phone","circles","friends"})
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
 	@Column(nullable=false, unique=true)
 	public String uniqueString;
+
 	@Column(nullable=false)
 	public String name;
+	@Column(name = "image_path")
+	public String image = "";
 	public String status = "*--*";
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date lastActivity = new Date();
-	public Integer credits = 0;
+	
 	public Integer createdSurveys = 0;
 	public Integer respondedSurveys = 0;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date lastActivity = new Date();
+	@Embedded
+	public Privacy privacy = new Privacy();
+
+	// RegistrationUser on iOS
+	
+	public Long authId;
+	public Integer credits = 0;
 	@Column(nullable = false)
 	public String language;
 	public String email;
 	public String phone;
-	@Column(name = "image_path")
-	public String image = "";
-	@Embedded
-	public Privacy privacy = new Privacy();
-	public Long authId;
+	
+	
+	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
 	public List<Circle> circles = new ArrayList<Circle>();
 	@JoinTable(name = "Friends")

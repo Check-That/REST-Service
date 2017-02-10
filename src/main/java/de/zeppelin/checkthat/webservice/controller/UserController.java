@@ -1,9 +1,11 @@
 package de.zeppelin.checkthat.webservice.controller;
 
 import java.util.List;
+import java.security.cert.CollectionCertStoreParameters;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
@@ -83,8 +85,10 @@ public class UserController {
 	public List<String> getUniqueStringSuggestions(@RequestParam("name")String name) {
 		ArrayList<String> suggestions = new ArrayList<String>();
 		String baseName = escapeString(name);
-
-		if (baseName.split(" ").length <= 2)) {
+		
+		if (getAvailableName(baseName, ReplacementLetter.NO_WHITESPACES) != null) suggestions.add(baseName.replace(" ", "")); // Exatkten Namen prüfen
+		
+		if (baseName.split(" ").length >=2) {
 			suggestions.add(checkNameVariationGroup(baseName));
 			String[] split = baseName.split(" ");
 			String complete = String.join("", split);
@@ -94,7 +98,7 @@ public class UserController {
 			
 		}
 		
-		//Zahlen anhängen
+		// Zahlen anhängen
 		baseName = baseName.replace(" ", "");
 		while (suggestions.size() < 3)
 		{
@@ -105,13 +109,17 @@ public class UserController {
 				suggestions.add(name);
 			}
 		}
+		
+		if (suggestions.get(0).equals(suggestions.get(1))) suggestions.remove(0); // Doppelung von exaktem Namen und replacement vermeiden
 
 		return suggestions;
 	}
 
 	private String checkNameVariationGroup(String name) {
 		String suboptimalName = null;
-		for (ReplacementLetter letter : ReplacementLetter.values()) {
+		List<ReplacementLetter> shuffledLetters = Arrays.asList(ReplacementLetter.values());
+		Collections.shuffle(shuffledLetters);
+		for (ReplacementLetter letter : shuffledLetters) {
 			String tmpName = getAvailableName(name, letter);
 			if (tmpName != null) return tmpName;
 			for (int i = 0; suboptimalName == null && i < 3; i++) {
@@ -150,7 +158,7 @@ public class UserController {
 	}
 
 	private String escapeString(String name) {
-		String accepted = "abcdefghijklmnopqrstuvwxyz123456789._-+*/ ";
+		String accepted = "abcdefghijklmnopqrstuvwxyz123456789._-+* ";
 
 		name = name.trim().toLowerCase();
 		char[] out = new char[name.length()];
