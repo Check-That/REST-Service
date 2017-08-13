@@ -1,4 +1,4 @@
-package de.zeppelin.checkthat.webservice.models.response;
+package de.zeppelin.checkthat.webservice.models.helper;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import de.zeppelin.checkthat.webservice.Application;
 import de.zeppelin.checkthat.webservice.exceptions.BadRequestException;
 import de.zeppelin.checkthat.webservice.exceptions.ConflictException;
 import de.zeppelin.checkthat.webservice.exceptions.ForbiddenException;
+import de.zeppelin.checkthat.webservice.models.response.Response;
 import de.zeppelin.checkthat.webservice.persisetence.ResponseRepository;
 import de.zeppelin.checkthat.webservice.persisetence.SurveyRepository;
 import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
@@ -18,6 +19,7 @@ import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
 @Service
 public class ResponsePostHelper {
 	public List<Integer> responseValues;
+	public boolean favorite = false;
 
 	private UserRepository userRep = Application.getContext().getBean(UserRepository.class);
 	private SurveyRepository surveyRep = Application.getContext().getBean(SurveyRepository.class);
@@ -31,7 +33,8 @@ public class ResponsePostHelper {
 	public Response generateAnswer(Long surveyId, Long authId) {
 		try {
 			this.response.survey = this.surveyRep.findOne(surveyId);
-			this.response.responseValues = this.responseValues; 
+			this.response.responseValues = this.responseValues;
+			this.response.favorite = this.favorite;
 			this.response.responder = this.userRep.findOneByAuthId(authId);
 		} catch (Exception e) {
 			throw new ConflictException();
@@ -44,6 +47,9 @@ public class ResponsePostHelper {
 		try {
 			this.response.survey.responses.add(this.response);
 			this.surveyRep.save(this.response.survey);
+
+			this.response.responder.respondedSurveys.incrementBySurveyType(this.response.survey.type);
+			this.userRep.save(this.response.responder);
 
 			this.response = this.answerRep.findOneBySurveyIdAndResponderAuthId(surveyId, authId);
 		} catch (Exception e) {

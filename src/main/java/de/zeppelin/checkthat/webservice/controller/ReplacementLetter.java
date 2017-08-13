@@ -1,11 +1,7 @@
 package de.zeppelin.checkthat.webservice.controller;
 
 public enum ReplacementLetter {
-	NO_WHITESPACES(""),
-	UNDERSCORE("_"),
-	DOT("."),
-	DASH("-")
-	;
+	NO_WHITESPACES(""), UNDERSCORE("_"), DOT("."), DASH("-");
 
 	private final String text;
 
@@ -15,6 +11,6 @@ public enum ReplacementLetter {
 
 	@Override
 	public String toString() {
-		return text;
+		return this.text;
 	}
 }

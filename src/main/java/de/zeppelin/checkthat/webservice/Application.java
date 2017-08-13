@@ -2,6 +2,7 @@ package de.zeppelin.checkthat.webservice;
 
 import java.util.Properties;
 
+import javax.servlet.Filter;
 import javax.servlet.MultipartConfigElement;
 import javax.sql.DataSource;
 
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Component;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+import de.zeppelin.checkthat.webservice.controller.VersionControlFilter;
+
 @Component
 @Configuration
 @ComponentScan
@@ -34,6 +37,12 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 @EnableAspectJAutoProxy
 @EnableAsync
 public class Application implements ApplicationContextAware {
+
+	public static boolean deployed = true;
+	public static String awsAccessKey = "AKIAIAWLXX2I44GWUSGQ";
+	public static String awsSecretKey = "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";
+	public static String surveyImagesBucketName = "de.mindwing.checkthat.images";
+	public static String profileImagesBucketName = "de.mindwing.checkthat.profileimages";
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -96,11 +105,18 @@ public class Application implements ApplicationContextAware {
 
 	@Bean
 	public DataSource dataSource() {
-		MysqlDataSource dataSource = new MysqlDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/checkthat?useUnicode=true&characterEncoding=UTF-8");
-		dataSource.setUser("root");
-		dataSource.setPassword("rootpasswort");
-		return dataSource;
+		MysqlDataSource deployDataSource = new MysqlDataSource();
+		deployDataSource.setUrl(
+				"jdbc:mysql://de-mindwing-checkthat-db1.cnta1mlcze2e.us-west-2.rds.amazonaws.com:3306/checkthat?useUnicode=true&characterEncoding=UTF-8");
+		deployDataSource.setUser("root");
+		deployDataSource.setPassword("mindwingsupersecure");
+
+		MysqlDataSource testDataSource = new MysqlDataSource();
+		testDataSource.setUrl("jdbc:mysql://localhost:3306/checkthat?useUnicode=true&characterEncoding=UTF-8");
+		testDataSource.setUser("root");
+		testDataSource.setPassword("rootpassword");
+
+		return Application.deployed ? deployDataSource : testDataSource;
 	}
 
 	private Properties jpaProperties() {
@@ -108,5 +124,10 @@ public class Application implements ApplicationContextAware {
 		properties.put("eclipselink.weaving", "false");
 		// properties.put("eclipselink.logging.level", "ALL");
 		return properties;
+	}
+	
+	@Bean
+	public Filter versionControlFilter() {
+		return new VersionControlFilter();
 	}
 }

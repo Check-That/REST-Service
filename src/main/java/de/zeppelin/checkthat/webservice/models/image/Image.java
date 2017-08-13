@@ -1,11 +1,7 @@
 package de.zeppelin.checkthat.webservice.models.image;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import javax.persistence.Entity;
@@ -18,21 +14,25 @@ import javax.persistence.Table;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.zeppelin.checkthat.webservice.Application;
 import de.zeppelin.checkthat.webservice.exceptions.InternalServerErrorException;
+import de.zeppelin.checkthat.webservice.models.helper.ImageHelper;
 import de.zeppelin.checkthat.webservice.models.survey.Survey;
 import de.zeppelin.checkthat.webservice.persisetence.ImageRepository;
 
 @Entity(name = "image")
-@Table(name = "image")
+@Table(name = "images")
 // @JsonIgnoreProperties(value = {"survey", "uploaded"})
 public class Image {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long id;
 	public String title;
+	@JsonIgnore
+	public String awsObjectKey = UUID.randomUUID().toString();
 
 	@JsonIgnore
 	public boolean uploaded = false;
@@ -44,71 +44,55 @@ public class Image {
 	public Image() {
 	}
 
-	@JsonIgnore
-	public String getImagePath() {
-		return getImagePath("");
-	}
-
-	public String getImagePath(String postfix) {
-		if (this.id == null || this.id == 0) {
-			return null;
-		}
-		String rootDir = "C:\\checkthat\\pictures";
-
-		// Fill up id with zeros to get 12 digits
-		String fileName = String.format("%012d", this.id);
-		
-		if (postfix != null  || postfix != "") {
-			postfix = "@" + postfix;
-		}
-
-		Path path = Paths.get(rootDir, fileName.substring(0, 3), fileName.substring(3, 6), fileName.substring(6, 9),
-				fileName + postfix + ".jpg");
-
-		return path.toString();
-	}
-
 	@Async
 	public void saveImage(MultipartFile mpFile) {
-		File targetFile = new File(getImagePath());
-		try {
-			// Save full-size Image
-			targetFile.getParentFile().mkdirs();
-			targetFile.createNewFile();
-			mpFile.transferTo(targetFile);
 
-			// Generate thumbnail versions
+		// Generate thumbnail versions+
+		try {
 			BufferedImage bImage = ImageIO.read(mpFile.getInputStream());
-			scaleImage(bImage, 600, 800, new File(getImagePath("small-")));
-			scaleImage(bImage, 360, 480, new File(getImagePath("tn")));
-
-			ImageRepository imageRep = Application.getContext().getBean(ImageRepository.class);
-
-			this.uploaded = true;
-
-			imageRep.save(this);
-
-		} catch (IllegalStateException | IOException e) {
-			e.printStackTrace();
+			for (SurveyImageType imageType : SurveyImageType.values()) {
+				BufferedImage scaledImage = ImageHelper.scaleImage(bImage, imageType.width, imageType.height);
+				
+				ImageHelper.saveToAWS(scaledImage, Application.surveyImagesBucketName, this.awsObjectKey + imageType.postfix + ".jpg");
+			}
+		} catch (Exception e) {
 			throw new InternalServerErrorException();
 		}
+
+		ImageRepository imageRep = Application.getContext().getBean(ImageRepository.class);
+
+		this.uploaded = true;
+
+		imageRep.save(this);
+
 	}
 
-	public BufferedImage getImage(String postfix) {
-		try {
-			return ImageIO.read(new File(this.getImagePath(postfix)));
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new InternalServerErrorException();
-		}
+	public S3Object getImage(SurveyImageType imageType) {
+		return ImageHelper.getImage(Application.surveyImagesBucketName, this.awsObjectKey + imageType.postfix + ".jpg");
 	}
 
-	public void scaleImage(BufferedImage image, int width, int height, File targetFile) throws IOException {
-		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = resizedImage.createGraphics();
-		g.drawImage(image, 0, 0, width, height, null);
-		g.dispose();
-
-		ImageIO.write(resizedImage, "jpg", targetFile);
-	}
+	// public String getImagePath() {
+	// return getImagePath("");
+	// }
+	//
+	//
+	// public String getImagePath(String postfix) {
+	// if (this.id == null || this.id == 0) {
+	// return null;
+	// }
+	// String rootDir = "C:\\checkthat\\img\\survey";
+	//
+	// // Fill up id with zeros to get 12 digits
+	// String fileName = String.format("%012d", this.id);
+	//
+	// if (postfix != null || postfix != "") {
+	// postfix = "@" + postfix;
+	// }
+	//
+	// Path path = Paths.get(rootDir, fileName.substring(0, 3),
+	// fileName.substring(3, 6), fileName.substring(6, 9),
+	// fileName + postfix + ".jpg");
+	//
+	// return path.toString();
+	// }
 }

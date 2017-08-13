@@ -1,12 +1,9 @@
 package de.zeppelin.checkthat.webservice.controller;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
-import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,14 +12,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
-import de.zeppelin.checkthat.webservice.exceptions.BadRequestException;
+import com.amazonaws.services.s3.model.S3Object;
+
 import de.zeppelin.checkthat.webservice.exceptions.ConflictException;
 import de.zeppelin.checkthat.webservice.exceptions.ForbiddenException;
+import de.zeppelin.checkthat.webservice.exceptions.ImageNotFoundException;
 import de.zeppelin.checkthat.webservice.exceptions.InternalServerErrorException;
-import de.zeppelin.checkthat.webservice.exceptions.UnauthorizedException;
+import de.zeppelin.checkthat.webservice.models.helper.UserHelper;
 import de.zeppelin.checkthat.webservice.models.image.Image;
+import de.zeppelin.checkthat.webservice.models.image.ProfileImageType;
+import de.zeppelin.checkthat.webservice.models.image.SurveyImageType;
 import de.zeppelin.checkthat.webservice.models.user.User;
 import de.zeppelin.checkthat.webservice.persisetence.ImageRepository;
 import de.zeppelin.checkthat.webservice.persisetence.SurveyRepository;
@@ -39,17 +39,19 @@ public class ImageController {
 	@Autowired
 	ImageRepository imageRepository;
 
+	@Autowired
+	UserHelper userHelper;
+
 	// ImageId und Type sind durch ein @ getrennt -> "000123456751@small" oder
 	// "000123456751" für Originalgröße
-	@RequestMapping(value = "{imageIdAndType}", method = RequestMethod.GET, produces = { MediaType.IMAGE_JPEG_VALUE })
+	@RequestMapping(value = "/survey/{imageId}", method = RequestMethod.GET, produces = { MediaType.IMAGE_JPEG_VALUE })
 	@ResponseBody
-	public byte[] getImage(@PathVariable("imageIdAndType") String imageId,
-			@RequestHeader(value = "authId", required = false) Long authId) {
-		
-		checkAuthId(authId);
-		
-		String[] imageIdAndType = imageId.split("@");
-		Image image = this.imageRepository.getImageByImageIdAndAuthId(Long.parseLong(imageIdAndType[0]), authId);
+	public InputStreamResource getSurveyImage(@PathVariable("imageId") String imageId, @RequestParam("type") SurveyImageType imageType,
+			@RequestHeader(value = "authId", required = false) Long authId, HttpServletResponse response) {
+
+		userHelper.checkAuthId(authId);
+
+		Image image = this.imageRepository.getImageByImageIdAndAuthId(Long.parseLong(imageId), authId);
 		if (image == null) {
 			throw new ForbiddenException();
 		}
@@ -57,50 +59,42 @@ public class ImageController {
 			throw new ConflictException();
 		}
 
-		ByteArrayOutputStream bao = new ByteArrayOutputStream();
-
 		try {
-			String postfix = imageIdAndType.length > 1 ? imageIdAndType[1] : "";
-			ImageIO.write(image.getImage(postfix), "jpg", bao);
-		} catch (IOException e) {
+
+			S3Object imageObject = image.getImage(imageType);
+
+			response.addHeader("id", imageId);
+			response.addHeader("fullName", imageObject.getKey());
+			response.setContentLength((int) imageObject.getObjectMetadata().getContentLength());
+
+			return new InputStreamResource(imageObject.getObjectContent());
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new InternalServerErrorException();
 		}
-
-		return bao.toByteArray();
 	}
 
-	@RequestMapping(value = "{imageId}", method = RequestMethod.POST)
+	@RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET, produces = { MediaType.IMAGE_JPEG_VALUE })
 	@ResponseBody
-	public String postImages(@PathVariable("imageId") Long imageId,
-			@RequestHeader(value = "authId", required = false) Long authId,
-			@RequestParam(name = "image", required = true) MultipartFile file) {
+	public InputStreamResource getProfileImage(@PathVariable("userId") Long userId,@RequestParam("type") ProfileImageType imageType,
+			@RequestHeader(value = "authId", required = false) Long authId, HttpServletResponse response) {
+		userHelper.checkAuthId(authId);
+
+		User user = userRep.findOne(userId);
+		if (user == null) throw new ConflictException();
+		if (user.image.equals("")) throw new ImageNotFoundException();
 		
-		if (file == null || file.getSize() == 0) throw new BadRequestException();
-		checkAuthId(authId);
+		try {
+			S3Object imageObject = user.getImage(imageType);
 
-		Image image = this.imageRepository.findOne(imageId);
+			response.addHeader("id", user.image);
+			response.addHeader("fullName", imageObject.getKey());
+			response.setContentLength((int) imageObject.getObjectMetadata().getContentLength());
 
-		if (image == null) throw new ConflictException();
-		if (image.survey.creator.authId.longValue() != authId.longValue()) throw new ForbiddenException();
-
-		image.saveImage(file);
-
-		return "ok";
-	}
-	
-	private void checkAuthId(Long authId)
-	{
-		if (authId != null && authId != 0) {
-			User user = this.userRep.findOneByAuthId(authId);
-			if (user != null) {
-				 user.lastActivity = new Date();
-				 userRep.save(user);
-			} else {
-				throw new ForbiddenException();
-			}
-		} else {
-			throw new UnauthorizedException();
+			return new InputStreamResource(imageObject.getObjectContent());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ImageNotFoundException();
 		}
 	}
 }

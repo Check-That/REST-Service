@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import de.zeppelin.checkthat.webservice.models.survey.Survey;
@@ -26,6 +27,7 @@ public class Response {
 	public Long id;
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date date = new Date();
+	@JsonIgnore
 	public Boolean favorite;
 	public List<Integer> responseValues;
 	public User responder;

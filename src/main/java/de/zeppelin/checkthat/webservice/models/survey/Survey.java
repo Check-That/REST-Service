@@ -35,7 +35,7 @@ public class Survey {
 	public Date expirationDate;
 	@Enumerated(EnumType.STRING)
 	public SurveyType type;
-//	@OneToOne
+	// @OneToOne
 	public User creator;
 	public List<String> rateCategories;
 	@Enumerated(EnumType.STRING)
@@ -65,9 +65,9 @@ public class Survey {
 
 	@Override
 	public String toString() {
-		return "Survey [id=" + this.id + ", title=" + this.title + ", expirationDate=" + this.expirationDate + ", type=" + this.type
-				+ ", creator=" + this.creator + ", rateCategories=" + this.rateCategories + ", priority="
-				+ this.priority + ", images=" + this.images + ", participants=" + this.participants + ", responses="
+		return "Survey [id=" + this.id + ", title=" + this.title + ", expirationDate=" + this.expirationDate + ", type="
+				+ this.type + ", creator=" + this.creator + ", rateCategories=" + this.rateCategories + ", priority="
+				+ this.priority + ", images=" + this.images + ", members=" + this.participants + ", votes="
 				+ this.responses + "]";
 	}
 

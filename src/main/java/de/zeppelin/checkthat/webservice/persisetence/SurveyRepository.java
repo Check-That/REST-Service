@@ -13,10 +13,10 @@ public interface SurveyRepository extends CrudRepository<Survey, Long> {
 	Iterable<Survey> findByCreator(User user);
 
 	Iterable<Survey> findByCreatorAuthId(Long authId);
-	
+
 	@Query("SELECT s from survey s WHERE s.creator.authId = :authId AND s.expirationDate > CURRENT_DATE AND SIZE(s.responses) < SIZE(s.participants)")
 	Iterable<Survey> findOwnPending(@Param("authId") Long authId);
-	
+
 	@Query("SELECT s from survey s WHERE s.creator.authId = :authId AND (s.expirationDate <= CURRENT_DATE OR SIZE(s.responses) >= SIZE(s.participants))")
 	Iterable<Survey> findOwnCompleted(@Param("authId") Long authId);
 
@@ -27,13 +27,17 @@ public interface SurveyRepository extends CrudRepository<Survey, Long> {
 
 	@Query("SELECT r.survey FROM response r, survey s WHERE r.responder.authId = :authId AND s.id = r.survey.id AND r.favorite = true")
 	Iterable<Survey> findRespondedFavorites(@Param("authId") Long authId);
-	
+
 	@Query("SELECT r.survey FROM response r, survey s WHERE r.responder.authId = :authId AND s.id = r.survey.id AND r.favorite = false")
 	Iterable<Survey> findRespondedNonFavorites(@Param("authId") Long authId);
-	
-//	@Query("SELECT r.survey FROM response r, survey s WHERE r.responder.authId = :authId AND s.id = r.survey.id AND s.expirationDate > CURRENT_DATE AND SIZE(s.responses) < SIZE(s.participants)")
-//	Iterable<Survey> findRespondedPending(@Param("authId") Long authId);
-//	
-//	@Query("SELECT r.survey FROM response r, survey s WHERE r.responder.authId = :authId AND s.id = r.survey.id AND (s.expirationDate <= CURRENT_DATE OR SIZE(s.responses) >= SIZE(s.participants))")
-//	Iterable<Survey> findRespondedCompleted(@Param("authId") Long authId);
+
+	// @Query("SELECT r.survey FROM response r, survey s WHERE
+	// r.responder.authId = :authId AND s.id = r.survey.id AND s.expirationDate
+	// > CURRENT_DATE AND SIZE(s.responses) < SIZE(s.participants)")
+	// Iterable<Survey> findRespondedPending(@Param("authId") Long authId);
+	//
+	// @Query("SELECT r.survey FROM response r, survey s WHERE
+	// r.responder.authId = :authId AND s.id = r.survey.id AND (s.expirationDate
+	// <= CURRENT_DATE OR SIZE(s.responses) >= SIZE(s.participants))")
+	// Iterable<Survey> findRespondedCompleted(@Param("authId") Long authId);
 }

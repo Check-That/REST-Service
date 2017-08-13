@@ -1,13 +1,17 @@
-package de.zeppelin.checkthat.webservice.models.survey;
+package de.zeppelin.checkthat.webservice.models.helper;
 
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.springframework.web.multipart.MultipartFile;
 
 import de.zeppelin.checkthat.webservice.Application;
 import de.zeppelin.checkthat.webservice.exceptions.BadRequestException;
 import de.zeppelin.checkthat.webservice.exceptions.ConflictException;
 import de.zeppelin.checkthat.webservice.models.image.Image;
+import de.zeppelin.checkthat.webservice.models.survey.Survey;
+import de.zeppelin.checkthat.webservice.models.survey.SurveyPriority;
+import de.zeppelin.checkthat.webservice.models.survey.SurveyType;
 import de.zeppelin.checkthat.webservice.persisetence.ImageRepository;
 import de.zeppelin.checkthat.webservice.persisetence.SurveyRepository;
 import de.zeppelin.checkthat.webservice.persisetence.UserRepository;
@@ -23,13 +27,17 @@ public class SurveyPostHelper {
 
 	private UserRepository userRep = Application.getContext().getBean(UserRepository.class);
 	private SurveyRepository surveyRep = Application.getContext().getBean(SurveyRepository.class);
-	// private ImageRepository imageRep = Application.getContext().getBean(
-	// ImageRepository.class);
+	private ImageRepository imageRep = Application.getContext().getBean(ImageRepository.class);
+
+	private Long tmpAuthID;
+	private MultipartFile[] tmpFiles;
 
 	public SurveyPostHelper() {
 	}
 
-	public Survey generateSurvey(Long authId) {
+	public Survey generateSurvey(Long authId, MultipartFile[] files) {
+		this.tmpAuthID = authId;
+		this.tmpFiles = files;
 
 		if (!checkValid()) {
 			throw new BadRequestException();
@@ -39,7 +47,7 @@ public class SurveyPostHelper {
 		survey.rateCategories = this.rateCategories;
 		survey.title = this.title;
 		survey.type = this.type;
- 		survey.expirationDate = DateTime.now().plusSeconds(duration).toDate();
+		survey.expirationDate = DateTime.now().plusSeconds(this.duration).toDate();
 
 		try {
 			survey.creator = this.userRep.findOneByAuthId(authId);
@@ -49,13 +57,16 @@ public class SurveyPostHelper {
 
 			this.surveyRep.save(survey);
 
-			for (String imageTitle : this.images) {
-				ImageRepository imageRep = Application.getContext().getBean(ImageRepository.class);
+			for (int i = 0; i < this.images.size(); i++) {
 				Image image = new Image();
-				image.title = imageTitle;
+				image.title = this.images.get(i);
 				image.survey = survey;
-				survey.images.add(imageRep.save(image));
+				survey.images.add(this.imageRep.save(image));
+				image.saveImage(files[i]);
 			}
+
+			survey.creator.createdSurveys.incrementBySurveyType(survey.type);
+			this.userRep.save(survey.creator);
 		} catch (Exception e) {
 			throw new ConflictException();
 		}
@@ -78,9 +89,12 @@ public class SurveyPostHelper {
 							// pay-Authority So that everybody has paid
 							// correctly
 		}
-		if (this.participants == null || this.participants.size() <= 1 || this.participants.size() > 20) {
-			return false; // Todo: Check if not the only participant is the
-							// creator
+		if (this.participants == null || this.participants.size() < 1 || this.participants.size() > 20
+				|| this.participants.size() == 1 && this.participants.get(0) == this.tmpAuthID) {
+			return false;
+		}
+		if (this.tmpFiles == null || this.tmpFiles.length != this.images.size()) {
+			return false;
 		}
 		return true;
 	}
@@ -88,6 +102,6 @@ public class SurveyPostHelper {
 	@Override
 	public String toString() {
 		return "SurveyPostHelper [title=" + this.title + ", type=" + this.type + ", rateCategories="
-				+ this.rateCategories + ", priority=" + this.priority + ", participants=" + this.participants + "]";
+				+ this.rateCategories + ", priority=" + this.priority + ", members=" + this.participants + "]";
 	}
 }
